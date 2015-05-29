@@ -1,0 +1,17 @@
+{
+  "name": "oidc-angular",
+  "version": "0.0.0",
+  "authors": [
+    "Michael Schnyder <michael.schnyder@zuehlke.com>"
+  ],
+  "description": "OpenId Connect for AngularJS",
+  "main": "oidc-angular.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
