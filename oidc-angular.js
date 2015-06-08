@@ -4,6 +4,19 @@
 
 var eventPrefix = 'oidcauth:';
 
+var unauthorizedEvent =          eventPrefix + 'unauthorized';
+var tokenExpiredEvent =          eventPrefix + 'tokenExpired';
+var tokenMissingEvent =          eventPrefix + 'tokenMissing';
+var tokenExpiresSoonEvent =      eventPrefix + 'tokenExpires';
+
+var loggedInEvent =              eventPrefix + 'loggedIn';
+var loggedOutEvent =             eventPrefix + 'loggedOut';
+
+var silentRefreshStartedEvent =  eventPrefix + 'silentRefreshStarted';
+var silentRefreshSuceededEvent = eventPrefix + 'silentRefreshSucceded';
+var silentRefreshFailedEvent =   eventPrefix + 'silentRefreshFailed';
+var silentRefreshTimeoutEvent =  eventPrefix + 'silentRefreshTimeout';
+
 // App libraries
 var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage', function($provide, $httpProvider) {
     $httpProvider.interceptors.push('oidcHttpInterceptor');
@@ -24,11 +37,11 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
                       request.headers['Authorization'] = 'Bearer ' + token;
                   }
                   else {
-                      $rootScope.$broadcast(eventPrefix + 'tokenExpired');
+                      $rootScope.$broadcast(tokenExpiredEvent);
                   }                  
               }
               else {
-                  $rootScope.$broadcast(eventPrefix + 'tokenMissing');
+                  $rootScope.$broadcast(tokenMissingEvent);
               }
           }
           
@@ -39,23 +52,20 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
         'response': function(response) {
             
             if (response.status == 401) {
-            
-              if (tokenService.hasToken()) {
-                  
-                  if (tokenService.hasValidToken())
-                  {
-                      $rootScope.$broadcast(eventPrefix + 'unauthorized');
-                  }
-                  else {
-                      $rootScope.$broadcast(eventPrefix + 'tokenExpired');
-                  }                  
+              if (!tokenService.hasToken()) {
+                  // There was probably no token attached, because there is none
+                  $rootScope.$broadcast(tokenMissingEvent);
+              }
+              else if (!tokenService.hasValidToken()) {
+                  // Seems the token is not valid anymore
+                  $rootScope.$broadcast(tokenExpiredEvent);
               }
               else {
-                  $rootScope.$broadcast(eventPrefix + 'tokenMissing');
-              }
+                  // any other
+                  $rootScope.$broadcast(unauthorizedEvent);
+              }                  
             }
             else {
-                
                 // Proactive check if the token will expire soo
                 $auth.validateExpirity();
             }
@@ -267,7 +277,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                 
                 $localStorage['refreshRunning'] = true;
                 
-                $rootScope.$broadcast(eventPrefix + 'refresh');
+                $rootScope.$broadcast(silentRefreshStartedEvent);
                 
                 var url = createLoginUrl('dummynonce', 'refresh');
                 
@@ -278,7 +288,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                 
                 setTimeout(function() {
                     if ($localStorage['refreshRunning']) {
-                        $rootScope.$broadcast(eventPrefix + 'refreshTimeout');
+                        $rootScope.$broadcast(silentRefreshTimeoutEvent);
                         delete $localStorage['refreshRunning']
                     }
                     
@@ -325,7 +335,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                 tokenService.clearTokens();
                 $location.path('/');
 
-                $rootScope.$broadcast(eventPrefix + 'loggedOut');            
+                $rootScope.$broadcast(loggedOutEvent);            
             };
 
             var validateExpirity = function() {
