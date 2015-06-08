@@ -199,7 +199,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
         },
         
         // Service itself
-        $get: ['$document', '$rootScope', '$localStorage', '$location', 'tokenService', function ($document, $rootScope, $localStorage, $location, tokenService) {
+        $get: ['$q', '$document', '$rootScope', '$localStorage', '$location', 'tokenService', function ($q, $document, $rootScope, $localStorage, $location, tokenService) {
         
             var init = function() {
                 
@@ -219,6 +219,11 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                 var hasPathDelimiter = config.basePath.endsWith('/');
                 var appendChar = (hasPathDelimiter) ? '' : '/';
                 
+                var currentClaims = tokenService.allClaims();
+                if (currentClaims) {
+                    var idpClaimValue = currentClaims["idp"];
+                }
+
                 var baseUrl = config.basePath + appendChar;
                 var url = baseUrl + config.authorizationEndpoint
                                   + "?response_type="
@@ -233,6 +238,12 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                                   + encodeURIComponent(config.scope)
                                   + "&nonce=" 
                                    + encodeURIComponent(nonce);
+
+                if (idpClaimValue) {
+                    url = url + "&acr_values="
+                              + encodeURIComponent("idp:" + idpClaimValue);
+                }
+
                 return url;
             };
 
@@ -269,7 +280,47 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                 window.location.replace(url);
             };
 
-            var tryRefresh = function() {
+            var handleImplicitFlowCallback = function(id_token) {
+                
+                tokenService.saveToken(id_token);
+                tokenService.saveClaims(tokenService.getPayload(id_token));
+        
+                var localRedirect = $localStorage['localRedirect'];
+                
+                if (localRedirect) {
+                    $location.path(localRedirect);
+                    delete $localStorage['localRedirect'];
+                }
+                else {
+                    $location.path('/');
+                }
+                
+                $rootScope.$broadcast(loggedInEvent);      
+                return true;      
+            };
+
+            var handleSilentRefreshCallback = function(newIdToken) {
+                
+                delete $localStorage['refreshRunning'];
+                
+                var currentIdToken = tokenService.getIdToken();
+                var currentClaims = tokenService.allClaims();
+                
+                var newClaims = tokenService.getPayload(newIdToken)
+                
+                if (currentClaims.exp && newClaims.exp && currentIdToken.exp > currentClaims.exp) {
+                    
+                    tokenService.saveToken(newIdToken);
+                    tokenService.saveClaims(newClaims);
+        
+                    $rootScope.$broadcast(silentRefreshSuceededEvent);
+                }
+                else {
+                    $rootScope.$broadcast(silentRefreshFailedEvent);
+                }
+            };
+
+            var trySilentRefresh = function() {
                 
                 if ($localStorage['refreshRunning']) {
                     return;            
@@ -293,11 +344,12 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                     }
                     
                     $document.find("#oauthFrame").remove();
-                }, 10000);
+                }, 5000);
             };
 
 
             var handleSignInCallback = function() {
+                
                 var fragments = {}
                 if (window.location.hash.indexOf("#") === 0) {
                     fragments = parseQueryString(window.location.hash.substr(16));
@@ -305,26 +357,14 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
             
                 var id_token     = fragments['id_token'];
                 var state        = fragments['state'];
-            
-                tokenService.saveToken(id_token);
-                tokenService.saveClaims(tokenService.getPayload(id_token));
-            
-                if (state === 'refresh') {
-                    delete $localStorage['refreshRunning'];
-                    $rootScope.$broadcast(eventPrefix + 'refreshed');
-                }
-                else {
-                    var localRedirect = $localStorage['localRedirect'];
-                    
-                    if (localRedirect) {
-                        $location.path(localRedirect);
-                        delete $localStorage['localRedirect'];
+                
+                if (id_token) {
+                    if (state === 'refresh') {
+                        handleSilentRefreshCallback(id_token);
                     }
                     else {
-                        $location.path('/');
-                    }
-                    
-                    $rootScope.$broadcast(eventPrefix + 'loggedIn');            
+                        handleImplicitFlowCallback(id_token);
+                    }               
                 }
             };
 
@@ -337,19 +377,28 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
 
                 $rootScope.$broadcast(loggedOutEvent);            
             };
-
+            
+            var tokenIsValidAt = function(date) {
+                var claims = tokenService.allClaims();
+                
+                var expiresAtMSec = claims.exp * 1000;
+                                
+                if (date <= expiresAtMSec) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
             var validateExpirity = function() {
                 if (!tokenService.hasToken()) return;
                 if (!tokenService.hasValidToken()) return;
                 
-                var claims = tokenService.allClaims();
-                
                 var now = Date.now();
-                var expiresAtMSec = claims.exp * 1000;
             
-                if (now + config.advanceRefresh > expiresAtMSec) {
-                    $rootScope.$broadcast(eventPrefix + 'tokenExpires');
-                    tryRefresh();
+                if (!tokenIsValidAt(now + config.advanceRefresh)) {
+                    $rootScope.$broadcast(tokenExpiresSoonEvent);
+                    trySilentRefresh();
                 }
             };
 
@@ -368,6 +417,10 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                     return tokenService.hasValidToken(); 
                 },
             
+                isAuthenticatedIn : function(milliseconds) { 
+                    return tokenService.hasValidToken() && tokenIsValidAt(new Date().getTime() + milliseconds); 
+                },
+            
                 signIn : function(localRedirect) { 
                     startImplicitFlow(localRedirect);
                 },
@@ -376,8 +429,8 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                     startLogout();
                 },
                 
-                forceRefresh : function() {
-                    tryRefresh();
+                silentRefresh : function() {
+                    trySilentRefresh();
                 }
               
             };
