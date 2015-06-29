@@ -86,11 +86,11 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
         return base64data;
     };
     
-    service.getPayload = function(raw)
+    service.getPayloadFromRawToken = function(raw)
     {
         var tokenParts = raw.split(".");
         return tokenParts[1];
-    }
+    };
 
     service.deserializeClaims = function(raw) {
         var claimsBase64 = padBase64(raw);
@@ -99,10 +99,20 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
         var claims = JSON.parse(claimsJson);
 
         return claims;
-    }
+    };
+    
+    service.convertToClaims = function(id_token) {
+        var payload = service.getPayloadFromRawToken(id_token);
+        var claims = service.deserializeClaims(payload);
+
+        return claims;
+    };
     
     service.saveToken = function (id_token) {
         $localStorage['idToken'] =  id_token;
+        
+        var idClaims = service.convertToClaims(id_token);
+        $localStorage['cached-claims'] =  idClaims;
     };
 
     service.hasToken = function() {
@@ -132,17 +142,23 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
         return true;
     }
 
-    service.saveClaims = function (id_token) {
-        var idClaims = service.deserializeClaims(id_token);
-        
-        var allClaims = {};
-        
-        angular.extend(allClaims, idClaims);
-        $localStorage['claims'] =  allClaims;
-    };
-    
     service.allClaims = function() {
-        return $localStorage['claims'];
+        var cachedClaims = $localStorage['cached-claims'];
+        
+        if (!cachedClaims) {
+            var id_token = service.getIdToken();
+            
+            if (id_token) {
+                var claims = service.convertToClaims(id_token);
+                
+                var idClaims = service.convertToClaims(id_token);
+                $localStorage['cached-claims'] =  idClaims;
+                
+                return claims;
+            }
+        }
+        
+        return cachedClaims;
     };
     
     service.getIdToken = function() {
@@ -150,7 +166,7 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
     };
     
     service.clearTokens = function() {
-        delete $localStorage['claims'];
+        delete $localStorage['cached-claims'];
         delete $localStorage['idToken'];
     }
 }]);
@@ -283,7 +299,6 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
             var handleImplicitFlowCallback = function(id_token) {
                 
                 tokenService.saveToken(id_token);
-                tokenService.saveClaims(tokenService.getPayload(id_token));
         
                 var localRedirect = $localStorage['localRedirect'];
                 
@@ -306,12 +321,11 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                 var currentIdToken = tokenService.getIdToken();
                 var currentClaims = tokenService.allClaims();
                 
-                var newClaims = tokenService.getPayload(newIdToken)
+                var newClaims = tokenService.convertToClaims(newIdToken)
                 
-                if (currentClaims.exp && newClaims.exp && currentIdToken.exp > currentClaims.exp) {
+                if (currentClaims.exp && newClaims.exp && newClaims.exp > currentClaims.exp) {
                     
                     tokenService.saveToken(newIdToken);
-                    tokenService.saveClaims(newClaims);
         
                     $rootScope.$broadcast(silentRefreshSuceededEvent);
                 }
