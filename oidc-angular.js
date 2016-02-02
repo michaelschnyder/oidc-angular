@@ -18,7 +18,7 @@ var silentRefreshFailedEvent =   eventPrefix + 'silentRefreshFailed';
 var silentRefreshTimeoutEvent =  eventPrefix + 'silentRefreshTimeout';
 
 // App libraries
-var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage', function($provide, $httpProvider) {
+var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage']).config(['$httpProvider', function($httpProvider) {
     $httpProvider.interceptors.push('oidcHttpInterceptor');
 }]);
 
