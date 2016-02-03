@@ -43,13 +43,17 @@ oidcmodule.config(['$httpProvider', '$routeProvider', function($httpProvider, $r
     console.debug('oidc-angular: callback routes registered.')
 }]);
 
-oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenService', function($rootScope, $q, $auth, tokenService) {
+oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', '$location', 'tokenService', function($rootScope, $q, $auth, $location, tokenService) {
       return {
 
         'request': function(request) {
-          
+         
          if (request.url.startsWith($auth.config.apiUrl)) {
               
+			 if ($location.$$url.indexOf('callback') !== -1) {
+				 return request;
+			 }
+		 
               if (tokenService.hasToken()) {
                   
                   if (tokenService.hasValidToken())
@@ -71,8 +75,11 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
         },
     
         'response': function(response) {
-            
+         
             if (response.status == 401) {
+              if ($location.$$url.indexOf('callback') !== -1) {
+                return response;
+              }
               if (!tokenService.hasToken()) {
                   // There was probably no token attached, because there is none
                   $rootScope.$broadcast(tokenMissingEvent);
