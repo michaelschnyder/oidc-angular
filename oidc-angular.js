@@ -17,9 +17,30 @@ var silentRefreshSuceededEvent = eventPrefix + 'silentRefreshSucceded';
 var silentRefreshFailedEvent =   eventPrefix + 'silentRefreshFailed';
 var silentRefreshTimeoutEvent =  eventPrefix + 'silentRefreshTimeout';
 
-// App libraries
-var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage']).config(['$httpProvider', function($httpProvider) {
+// Module registrarion
+var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage']);
+
+oidcmodule.config(['$httpProvider', '$routeProvider', function($httpProvider, $routeProvider) {
     $httpProvider.interceptors.push('oidcHttpInterceptor');
+    
+    // Register callback route
+    $routeProvider.
+        when('/auth/callback/:data', {
+            template: '',
+            controller: ['$auth', '$routeParams', function ($auth, $routeParams) {
+                console.debug('oidc-angular: handling login-callback');
+                $auth.handleSignInCallback($routeParams.data);
+            }]
+        }).
+        when('/auth/clear', {
+            template: '',
+            controller: ['$auth', function ($auth) {
+                console.debug('oidc-angular: handling logout-callback');
+                $auth.handleSignOutCallback();
+            }]
+        });        
+        
+    console.debug('oidc-angular: callback routes registered.')
 }]);
 
 oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenService', function($rootScope, $q, $auth, tokenService) {
@@ -172,22 +193,6 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
 }]);
 
 oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
-
-    // Register callback route
-    $routeProvider.
-        when('/auth/callback/:result', {
-            template: '',
-            controller: function ($auth) {
-                $auth.handleSignInCallback();
-            }
-        }).
-        when('/auth/clear', {
-            template: '',
-            controller: function ($auth) {
-                $auth.handleSignOutCallback();
-            }
-        });        
-    
 
     // Default configuration
     var config = {
@@ -362,12 +367,21 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
             };
 
 
-            var handleSignInCallback = function() {
+            var handleSignInCallback = function(data) {
                 
-                var fragments = {}
-                if (window.location.hash.indexOf("#") === 0) {
-                    fragments = parseQueryString(window.location.hash.substr(16));
+                if (!data && window.location.hash.indexOf("#") === 0) {
+                    data = window.location.hash.substr(16)
                 }
+                                
+                var fragments = {}
+                if (data) {
+                    fragments = parseQueryString(data);
+                }
+                else {
+                    throw Error("Unable to process callback. No data given!");
+                }
+            
+                console.debug("oidc-angular: Processing callback information", data);
             
                 var id_token     = fragments['id_token'];
                 var state        = fragments['state'];
