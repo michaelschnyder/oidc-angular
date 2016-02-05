@@ -60,11 +60,11 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
                           appendBearer = true;
                       }
                       else {
-                          $rootScope.$broadcast(tokenExpiredEvent);
+                          $rootScope.$broadcast(tokenExpiredEvent, { request: request });
                       }                  
                   }
                   else {
-                      $rootScope.$broadcast(tokenMissingEvent);
+                      $rootScope.$broadcast(tokenMissingEvent, { request: request });
                   }
               }
               else {
@@ -86,15 +86,15 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
             if (response.status == 401) {
               if (!tokenService.hasToken()) {
                   // There was probably no token attached, because there is none
-                  $rootScope.$broadcast(tokenMissingEvent);
+                  $rootScope.$broadcast(tokenMissingEvent, { response: response });
               }
               else if (!tokenService.hasValidToken()) {
                   // Seems the token is not valid anymore
-                  $rootScope.$broadcast(tokenExpiredEvent);
+                  $rootScope.$broadcast(tokenExpiredEvent, { response: response });
               }
               else {
                   // any other
-                  $rootScope.$broadcast(unauthorizedEvent);
+                  $rootScope.$broadcast(unauthorizedEvent, { response: response });
               }                  
             }
             else {
