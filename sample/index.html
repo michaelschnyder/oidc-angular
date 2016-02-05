@@ -1,0 +1,49 @@
+<html>
+    
+    <head>
+    
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.9/angular-route.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.10/ngStorage.js"></script>
+        <script type="text/javascript" src="../oidc-angular.js"></script>
+        <script type="text/javascript" src="angular-base64.js"></script>
+    </head>
+    
+    <body ng-app="app" ng-controller="IndexController as vm">
+        
+        <button ng-click="vm.login()">Login</button>
+        
+        <div ng-view> </div>
+        
+        <script>
+            
+            var appModule = angular.module('app', ['oidc-angular']);
+            
+            appModule.config(['$authProvider', function($authProvider) {
+                
+                $authProvider.configure({
+                    basePath: 'http://demo-server.openidconnect.info',
+                    authorizationEndpoint : 'authorize',
+                    clientId: '36e9e4b62933f528aa1edd9836cfe7776d7c401d1d52935157a0a5d133cbee0a'
+                })
+                
+                
+            }]);
+            
+            appModule.controller('IndexController', ['$auth', function($auth) {
+                
+                var vm = this;
+                
+                console.log($auth.isAuthenticated());
+                
+                vm.login = function() {
+                    $auth.signIn();
+                }
+                
+            }]);
+            
+            
+            
+        </script>        
+    </body>
+</html>
