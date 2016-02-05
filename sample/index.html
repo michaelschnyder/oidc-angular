@@ -22,12 +22,10 @@
             appModule.config(['$authProvider', function($authProvider) {
                 
                 $authProvider.configure({
-                    basePath: 'http://demo-server.openidconnect.info',
+                    basePath:               'http://demo-server.openidconnect.info',
                     authorizationEndpoint : 'authorize',
-                    clientId: '36e9e4b62933f528aa1edd9836cfe7776d7c401d1d52935157a0a5d133cbee0a'
+                    clientId:               '36e9e4b62933f528aa1edd9836cfe7776d7c401d1d52935157a0a5d133cbee0a'
                 })
-                
-                
             }]);
             
             appModule.controller('ApplicationController', ['$auth', '$rootScope', function($auth, $rootScope) {
