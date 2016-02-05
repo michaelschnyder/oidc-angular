@@ -50,19 +50,30 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
           
          if (request.url.startsWith($auth.config.apiUrl)) {
               
-              if (tokenService.hasToken()) {
-                  
-                  if (tokenService.hasValidToken())
-                  {
-                      var token = tokenService.getIdToken();
-                      request.headers['Authorization'] = 'Bearer ' + token;
+              var appendBearer = false;
+              
+              if($auth.config.enableRequestChecks) {
+                  // Only append token when it's valid.
+                  if (tokenService.hasToken()) {
+                      if (tokenService.hasValidToken())
+                      {
+                          appendBearer = true;
+                      }
+                      else {
+                          $rootScope.$broadcast(tokenExpiredEvent);
+                      }                  
                   }
                   else {
-                      //$rootScope.$broadcast(tokenExpiredEvent);
-                  }                  
+                      $rootScope.$broadcast(tokenMissingEvent);
+                  }
               }
               else {
-                  //$rootScope.$broadcast(tokenMissingEvent);
+                  appendBearer = tokenService.hasValidToken();
+              }
+              
+              if (appendBearer) {
+                  var token = tokenService.getIdToken();
+                  request.headers['Authorization'] = 'Bearer ' + token;
               }
           }
           
@@ -92,7 +103,7 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
             }
             
             return response;
-            }
+          }
       };
     }]);
 
@@ -216,6 +227,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
         revocationEndpoint:     'connect/revocation', 
         endSessionEndpoint:     'connect/endsession',
         advanceRefresh:         300,
+        enableRequestChecks:    false,
       };
 
     return {
