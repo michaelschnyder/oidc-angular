@@ -12,6 +12,7 @@
     <body ng-app="app" ng-controller="ApplicationController as vm">
         
         <button ng-click="vm.login()">Login</button>
+        <button ng-click="vm.clear()">Clear Local Storage</button>
         
         <div ng-view> </div>
         
@@ -28,20 +29,29 @@
                 })
             }]);
             
-            appModule.controller('ApplicationController', ['$auth', '$rootScope', function($auth, $rootScope) {
+            appModule.controller('ApplicationController', ['$auth', '$rootScope', '$localStorage', 
+            function($auth, $rootScope, $localStorage) {
                 
                 var vm = this;
                 
-                console.log($auth.isAuthenticated());
+                console.log('[ControllerCtor]', '$auth.isAuthenticated', $auth.isAuthenticated());
                 
+                $rootScope.$on('oidcauth:loggedIn', function(e) {
+                    console.log('[EventCallback]', 'Event', e.name, e);
+                    console.log('[EventCallback]', '$auth.isAuthenticated', $auth.isAuthenticated());
+                });
+
+
                 vm.login = function() {
                     $auth.signIn();
                 }
                 
+                vm.clear = function() {
+                    $localStorage.$reset();
+                }
             }]);
             
-            
-            
+
         </script>        
     </body>
 </html>
