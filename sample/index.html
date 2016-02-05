@@ -9,7 +9,7 @@
         <script type="text/javascript" src="angular-base64.js"></script>
     </head>
     
-    <body ng-app="app" ng-controller="IndexController as vm">
+    <body ng-app="app" ng-controller="ApplicationController as vm">
         
         <button ng-click="vm.login()">Login</button>
         
@@ -30,7 +30,7 @@
                 
             }]);
             
-            appModule.controller('IndexController', ['$auth', function($auth) {
+            appModule.controller('ApplicationController', ['$auth', '$rootScope', function($auth, $rootScope) {
                 
                 var vm = this;
                 
