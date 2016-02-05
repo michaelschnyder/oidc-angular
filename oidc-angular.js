@@ -289,6 +289,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                                   + encodeURIComponent(config.logoutUri) 
                                   + "&state=" 
                                   + encodeURIComponent(state || config.state) 
+                                  + "&r=" + Math.random();
                 return url;
             }    
             
