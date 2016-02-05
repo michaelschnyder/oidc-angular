@@ -82,6 +82,13 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
         },
     
         'response': function(response) {
+            // Proactively check if the token will expire soon
+            $auth.validateExpirity();
+
+            return response;
+        },
+          
+        'responseError': function(response) {
             
             if (response.status == 401) {
               if (!tokenService.hasToken()) {
@@ -96,10 +103,6 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
                   // any other
                   $rootScope.$broadcast(unauthorizedEvent, { response: response });
               }                  
-            }
-            else {
-                // Proactive check if the token will expire soo
-                $auth.validateExpirity();
             }
             
             return response;
