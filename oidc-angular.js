@@ -227,7 +227,6 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
         redirectUri: (window.location.origin || window.location.protocol + '//' + window.location.host) + window.location.pathname + '#/auth/callback/',
         logoutUri: (window.location.origin || window.location.protocol + '//' + window.location.host) + window.location.pathname + '#/auth/clear',
         state: "",
-        jwksUri :              '.well-known/jwks',
         authorizationEndpoint:  'connect/authorize',
         revocationEndpoint:     'connect/revocation', 
         endSessionEndpoint:     'connect/endsession',
