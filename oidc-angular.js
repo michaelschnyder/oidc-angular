@@ -169,8 +169,10 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
         var now = Date.now();
         var issuedAtMSec = claims.iat * 1000;
         var expiresAtMSec = claims.exp * 1000;
-
-        if (issuedAtMSec > now) {
+        var marginMSec = 1000;
+        
+        // Substract margin, because browser time could be a bit in the past
+        if (issuedAtMSec - marginMSec > now) {
             console.log('oidc-connect: Token is not yet valid!')
             return false
         }
