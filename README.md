@@ -19,6 +19,8 @@ var app = angular.module('myApp', ['oidc-angular'], function($auth) {
 );
 ```
 
+## Configuration options
+
 See https://github.com/michaelschnyder/oidc-angular/blob/master/oidc-angular.js#L220 for configuration details
 
 #Sample
