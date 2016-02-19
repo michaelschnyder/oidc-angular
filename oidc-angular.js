@@ -105,7 +105,7 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
               }                  
             }
             
-            return response;
+            return $q.reject(response);
           }
       };
     }]);
