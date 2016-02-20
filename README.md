@@ -4,7 +4,7 @@ Please see http://blog.emtwo.ch/jwt-token-based-auth-with-angularjs/ for motivat
 To install oidc-angular use bower
 ``bower install oidc-angular -save``
 
-Inject the `$auth`-Provider while to setup the library while configuring the Angular-Application
+Inject the `$auth`-Provider to setup the library while configuring the Angular-Application
 
 ```javascript
 
