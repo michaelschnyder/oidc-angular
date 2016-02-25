@@ -19,6 +19,20 @@ var app = angular.module('myApp', ['oidc-angular'], function($auth) {
 );
 ```
 
+##Calling oidc-angular explicitly
+
+```javascript
+ $auth.signIn();
+```
+
+Or with a redirection after login:
+
+```javascript
+ $auth.signIn('#/page2');
+```
+
+
+
 See https://github.com/michaelschnyder/oidc-angular/blob/master/oidc-angular.js#L220 for configuration details
 
 #Sample
