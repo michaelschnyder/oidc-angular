@@ -18,6 +18,8 @@ var app = angular.module('myApp', ['oidc-angular'], function($auth) {
 }
 );
 ```
+See https://github.com/michaelschnyder/oidc-angular/blob/master/oidc-angular.js#L220 for configuration details
+
 
 ##Calling oidc-angular explicitly
 
@@ -30,10 +32,6 @@ Or with a redirection after login:
 ```javascript
  $auth.signIn('#/page2');
 ```
-
-
-
-See https://github.com/michaelschnyder/oidc-angular/blob/master/oidc-angular.js#L220 for configuration details
 
 #Sample
 There is a sample in the `samples`-Folder.
