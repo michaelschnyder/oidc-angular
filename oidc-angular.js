@@ -68,7 +68,7 @@ oidcmodule.factory('oidcHttpInterceptor', ['$rootScope', '$q', '$auth', 'tokenSe
                   }
               }
               else {
-                  appendBearer = tokenService.hasValidToken();
+                  appendBearer = tokenService.hasToken();
               }
               
               if (appendBearer) {
