@@ -169,7 +169,7 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
         var now = Date.now();
         var issuedAtMSec = claims.iat * 1000;
         var expiresAtMSec = claims.exp * 1000;
-        var marginMSec = 1000;
+        var marginMSec = 1000 * 60 * 5; // 5 Minutes
         
         // Substract margin, because browser time could be a bit in the past
         if (issuedAtMSec - marginMSec > now) {
