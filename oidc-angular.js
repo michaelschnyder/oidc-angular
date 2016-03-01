@@ -218,7 +218,6 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
 
     // Default configuration
     var config = {
-        issuer: null,
         basePath: null,
         clientId: null,
         apiUrl: '/api/',
