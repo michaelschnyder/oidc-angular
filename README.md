@@ -68,7 +68,7 @@ Events are broadcasted to the `$rootScope`.
 
 ##Methods
 
-##SignIn
+###SignIn
 
 ```javascript
  $auth.signIn();
