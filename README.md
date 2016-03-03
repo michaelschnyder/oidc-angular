@@ -38,7 +38,7 @@ For a complete and always up-to-date list of configuration options, see https://
 | `responseType`            | `string` | Type of the required token. Should `id_token`. | `id_token`
 | `scope`                   | `string` | Scopes (and contained claims) that should be returned by the IdP. Needs to be at least `openid profile`. Separate by space. | `openid profile`
 | `redirectUri`             | `string` | The uri where the **Library** has registered its callback route for login is by default `#/auth/callback/`. The callback route gets evaluated by the **Library** and typically doesn't need an adjustment | `[Proto]://[HostName]/[Path(s)/#/auth/callback/`
-| `logoutUri`               | `string` | The uri where the **Library** has registered its callback route for logout is by default `#/auth/clear`. The callback route gets evaluated by the **Library** and typically doesn't need an adjustment | `[Proto]://[HostName]/[Path(s)/#/auth/callback/`
+| `logoutUri`               | `string` | The uri where the **Library** has registered its callback route for logout is by default `#/auth/clear`. The callback route gets evaluated by the **Library** and typically doesn't need an adjustment | `[Proto]://[HostName]/[Path(s)/#/auth/clear`
 | `authorizationEndpoint`   | `string` | Place where the user logs in to the IdP. Combined with `basePath` | `[basePath]:connect/authorize`
 | `endSessionEndpoint`      | `string` | Place where the ends his session in the IdP. Combined with `basePath` | `[basePath]:connect/endsession`
 | `advanceRefresh`          | `int`    | Defines the advance seconds when trying to silenty reaquire a token. Checks are not made constantly, only after on sucessfull responses  | `300`
