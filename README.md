@@ -80,5 +80,12 @@ Or with a redirection after login:
  $auth.signIn('#/page2');
 ```
 
+###SignOut
+Logout the user imediately and quit the session on the IdP by calling the `endSessionEndpoint`. Claims in local storage get cleared after callback.
+
+```javascript
+ $auth.signOut();
+```
+
 #Sample
 There is a sample in the `samples`-Folder.
