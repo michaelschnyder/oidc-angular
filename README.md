@@ -70,6 +70,9 @@ Events are broadcasted to the `$rootScope`.
 
 ###SignIn
 
+Redirects the user to the configured IpP. The URL to the login screen is constructed based on the configuration made.
+
+**Samples**
 ```javascript
  $auth.signIn();
 ```
@@ -83,8 +86,19 @@ Or with a redirection after login:
 ###SignOut
 Logout the user imediately and quit the session on the IdP by calling the `endSessionEndpoint`. Claims in local storage get cleared after callback.
 
+**Sample**
+
 ```javascript
  $auth.signOut();
+```
+
+###IsAuthenticated
+Returns `true` if the there is a valid token available, `false` if no token or an expired / not yet valid token is available.
+
+**Sample**
+
+```javascript
+ $auth.isAuthenthicated();
 ```
 
 #Sample
