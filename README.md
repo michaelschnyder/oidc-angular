@@ -101,5 +101,14 @@ Returns `true` if the there is a valid token available, `false` if no token or a
  $auth.isAuthenthicated();
 ```
 
+###IsAuthenticatedIn(milliseconds) 
+Returns `true` if the current token is still valid after the given amount of milliseconds
+
+**Sample**
+
+```javascript
+ $auth.isAuthenthicatedIn(3600000); // 1hour
+```
+
 #Sample
 There is a sample in the `samples`-Folder.
