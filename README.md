@@ -1,5 +1,5 @@
 # oidc-angular
-AngularJs Client Library to support modern web-applications when using the OpenId compatible "Hyprid Flow". See http://openid.net/specs/openid-connect-core-1_0.html#HybridFlowAuth for details.
+AngularJs Client Library to support modern web-applications when using the OpenId compatible "Hyprid Flow" aka "Browser-Flow". See http://openid.net/specs/openid-connect-core-1_0.html#HybridFlowAuth for details.
 
 ![Hybrid Flow explained](http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQXV0aGVudGljYXRpb24gU2VxdWVuY2UKCkJyb3dzZXItPlBvcnRhbC1DbGllbnQ6IE5hdmlnYXRlIHRvIAAVBgoAFQ0AKAlBcGk6IEFjY2VzcyBSZXNzb3VyY2UKbm90ZSByaWdodCBvZgA6BwBTCVVzdWFsbHkgdGhlIGMAawUgaXMgYWJsAGkFY2hlY2sgXG50b2tlbiBwcmlvciBhAFsFaW5nAC8FQVBJAIEFCEFwaQCBKhFBdXRoIFJlcXVpcmVkCgCBJxAAgWoHOiBSZWRpcmVjdCB0byBJZFAAggAKSWRQOiBMb2dpbiB3aXRoIFVzZXJuYW1lIC8gUGFzc3dvcmQKSWRQAEALU3VjZWVkZWQsIHIASgsAgkUNAIIDDwB9CVRoZSAAgWQGaXMgdGFuc3BvcnRlZCBhIGFuIFVybC1cbkNvbXBvbmVudCBsaWtlICZpZF8AghcFPS4uLgCDJxkAgwsHAINQBgCBQgZUb2tlbgCDICYAgyobAINrBUdyYW50AINvBw&s=roundgreen)
 
@@ -11,7 +11,7 @@ To install oidc-angular use bower
 bower install oidc-angular -save
 ```
 
-Inject the `$auth`-Provider to setup the library while configuring the Angular-Application
+Inject the `$auth`-Provider to setup the library while configuring the AngularJs-Application
 
 ```javascript
 
@@ -45,11 +45,10 @@ For a complete and always up-to-date list of configuration options, see https://
 | `enableRequestChecks`     | `boolean`| Specifies if the token should be validated before using. Use with caution, because this checks depend on the currect UTC time of both the browser and the server | `false`
 
 ### Configuring the IdP
-When configuring the IdP, make sure the options `clientId`, `redirectUri` and `logoutUri` are exact the same as in the oidc-angular configuration. Otherwise, the IdP typically refuses to redirect back to your application as part of its security guidelines.
+When configuring the IdP, make sure the options `clientId`, `redirectUri` and `logoutUri` are exact the same as in the oidc-angular configuration. Otherwise, the IdP typically refuses to redirect back to your application as part of its security model.
 
 ##Events
-oidc-angular comes with a various list of events which gives you the most possible 
-flexibility to handle the authentication process 
+oidc-angular comes with a various list of events which gives you the most possible flexibility to handle the authentication process 
 
 Events are broadcasted to the `$rootScope`.
 
