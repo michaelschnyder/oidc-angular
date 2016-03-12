@@ -1,5 +1,5 @@
 # oidc-angular
-This is angularjs client library to support modern web-applications when using the OpenId compatible "Hyprid Flow" aka "Browser-Flow". See http://openid.net/specs/openid-connect-core-1_0.html#HybridFlowAuth for details.
+This is an angularjs client library to support modern web-applications when using the OpenId compatible "Hyprid Flow" aka "Browser-Flow". See http://openid.net/specs/openid-connect-core-1_0.html#HybridFlowAuth for details.
 
 ![Hybrid Flow explained](http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQXV0aGVudGljYXRpb24gU2VxdWVuY2UKCkJyb3dzZXItPlBvcnRhbC1DbGllbnQ6IE5hdmlnYXRlIHRvIAAVBgoAFQ0AKAlBcGk6IEFjY2VzcyBSZXNzb3VyY2UKbm90ZSByaWdodCBvZgA6BwBTCVVzdWFsbHkgdGhlIGMAawUgaXMgYWJsAGkFY2hlY2sgXG50b2tlbiBwcmlvciBhAFsFaW5nAC8FQVBJAIEFCEFwaQCBKhFBdXRoIFJlcXVpcmVkCgCBJxAAgWoHOiBSZWRpcmVjdCB0byBJZFAAggAKSWRQOiBMb2dpbiB3aXRoIFVzZXJuYW1lIC8gUGFzc3dvcmQKSWRQAEALU3VjZWVkZWQsIHIASgsAgkUNAIIDDwB9CVRoZSAAgWQGaXMgdGFuc3BvcnRlZCBhIGFuIFVybC1cbkNvbXBvbmVudCBsaWtlICZpZF8AghcFPS4uLgCDJxkAgwsHAINQBgCBQgZUb2tlbgCDICYAgyobAINrBUdyYW50AINvBw&s=roundgreen)
 
