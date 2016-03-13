@@ -62,7 +62,7 @@ Events are broadcasted to the `$rootScope`.
 |`oidcauth:loggedOut`             | Raised when the IdP redirected the user back to the app after logout | *none*
 |`oidcauth:silentRefreshStarted`  | The Refresh-process of the token has started in the background (`iframe`) | *none*
 |`oidcauth:silentRefreshSucceded` | A new and newer token was aquired sucessfully | *none*
-|`oidcauth:silentRefreshFailed`   | Unable to aquire a new token via backgroud-process | *none*
+|`oidcauth:silentRefreshFailed`   | Unable to aquire a new token via background-process | *none*
 |`oidcauth:silentRefreshTimeout`  | The background-refresh process timed out | *none*
 
 ##Methods
