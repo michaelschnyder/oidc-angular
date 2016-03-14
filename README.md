@@ -42,7 +42,7 @@ For a complete and always up-to-date list of configuration options, see https://
 | `authorizationEndpoint`   | `string` | Place where the user logs in to the IdP. Combined with `basePath` | `[basePath]:connect/authorize`
 | `endSessionEndpoint`      | `string` | Place where the ends his session in the IdP. Combined with `basePath` | `[basePath]:connect/endsession`
 | `advanceRefresh`          | `int`    | Defines the advance seconds when trying to silenty reaquire a token. Checks are not made constantly, only after on sucessfull responses  | `300`
-| `enableRequestChecks`     | `boolean`| Specifies if the token should be validated before using in outgoing requests. Use with caution, because this checks depend on the currect UTC time of both the browser and the server | `false`
+| `enableRequestChecks`     | `boolean`| Specifies if the token should be validated before using it in outgoing requests. Use with caution, because this checks depend on the currect UTC time of both the browser and the server | `false`
 
 ### Configuring the IdP
 When configuring the IdP, make sure the options `clientId`, `redirectUri` and `logoutUri` are exact the same as in the oidc-angular configuration. Otherwise, the IdP typically refuses to redirect back to your application as part of its security restrictions.
