@@ -5,7 +5,7 @@ This is an angularjs client library to support modern web-applications when usin
 
 See origin on http://blog.emtwo.ch/jwt-token-based-auth-with-angularjs/ for motivation and technical details.
 
-##First Start
+##Getting started
 To install oidc-angular use bower
 ```
 bower install oidc-angular -save
@@ -111,3 +111,6 @@ Returns `true` if the current token is still valid after the given amount of mil
 
 #Sample
 There is a sample in the `samples`-Folder.
+
+#Compatibility
+This library has been tested and intensively used with the ThinkTecture IdentityServer3 with varous versions. Please see [Thinktecture IdentityServer3](https://github.com/IdentityServer/IdentityServer3)
