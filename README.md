@@ -113,4 +113,4 @@ Returns `true` if the current token is still valid after the given amount of mil
 There is a sample in the `samples`-Folder.
 
 #Compatibility
-This library has been tested and intensively used with the ThinkTecture IdentityServer3 with varous versions. Please see [Thinktecture IdentityServer3](https://github.com/IdentityServer/IdentityServer3)
+This library has been tested and intensively used with the ThinkTecture IdentityServer3 with various versions. Please see [Thinktecture IdentityServer3](https://github.com/IdentityServer/IdentityServer3)
