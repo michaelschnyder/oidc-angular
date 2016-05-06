@@ -231,6 +231,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
         endSessionEndpoint:     'connect/endsession',
         advanceRefresh:         300,
         enableRequestChecks:    false,
+        stickToLastKnownIdp:    false
       };
 
     return {
@@ -281,7 +282,7 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
                                   + "&nonce=" 
                                    + encodeURIComponent(nonce);
 
-                if (idpClaimValue) {
+                if (config.stickToLastKnownIdp && idpClaimValue) {
                     url = url + "&acr_values="
                               + encodeURIComponent("idp:" + idpClaimValue);
                 }
