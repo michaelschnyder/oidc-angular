@@ -43,6 +43,7 @@ For a complete and always up-to-date list of configuration options, see https://
 | `endSessionEndpoint`      | `string` | Place where the ends his session in the IdP. Combined with `basePath` | `[basePath]:connect/endsession`
 | `advanceRefresh`          | `int`    | Defines the advance seconds when trying to silenty reaquire a token. Checks are not made constantly, only after on sucessfull responses  | `300`
 | `enableRequestChecks`     | `boolean`| Specifies if the token should be validated before using it in outgoing requests. Use with caution, because this checks depend on the currect UTC time of both the browser and the server | `false`
+| `stickToLastKnownIdp`     | `boolean` | Defines if the user should pass the last used IdP Name with the authorization request so that a front facing authorization decision server could automatically redirect to the propper IdP. This option might only be usful when using an primary IdP with additional "child"-IdPs. See 'acr_values' on [IdentityServer Docs]( https://identityserver.github.io/Documentation/docsv2/endpoints/authorization.html) | `false` |
 
 ### Configuring the IdP
 When configuring the IdP, make sure the options `clientId`, `redirectUri` and `logoutUri` are exact the same as in the oidc-angular configuration. Otherwise, the IdP typically refuses to redirect back to your application as part of its security restrictions.
