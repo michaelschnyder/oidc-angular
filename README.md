@@ -5,6 +5,17 @@ This is an angularjs client library to support modern web-applications when usin
 
 See origin on http://blog.emtwo.ch/jwt-token-based-auth-with-angularjs/ for motivation and technical details.
 
+## Refresh logic
+It can handle three scenarios:
+1) When user has token in `localStorage` and it is invalid then event `oidcauth:silentInitRefreshStarted` will be broadcasted to `$rootScope` and library will try to do `silentRefresh`. Then you receive this signal you can show popup message `logging in..` and wait for one of this signals: `oidcauth:silentRefreshSucceded` or `oidcauth:silentRefreshTimeout`
+2)  When user has token in `localStorage` and it is valid lib will start the loop for keeping token refreshed.. just test `$auth.isAuthenticated()` before api call to check token and silent refresh loop. The event `oidcauth:tokenExpires` is being thrown just before token expiration minus `config.advancedRefresh` (in seconds) and then one of `oidcauth:silentRefreshSucceded` or `oidcauth:silentRefreshTimeout`will occur after `oidcauth:silentRefreshStarted`.
+3) When user hasn’t token in `$localstorage` (user performed logout action or never log in) lib will NOT start the loop for keeping token refreshed..
+
+Last note:
+ - Lib will start loop for refreshing token when it is not running and user perform log in or silent successful refresh token.
+ - Lib will stop the loop when user performing logout
+
+
 ## Getting started
 To install oidc-angular use bower
 ```
