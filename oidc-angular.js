@@ -114,10 +114,17 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
 
     var service = this;
 
-    var padBase64 = function (base64data) {
+    var sanitize = function (base64data) {
+        
+        // Pad lenght to comply with the standard
         while (base64data.length % 4 !== 0) {
             base64data += "=";
         }
+
+        // convert to base64 from base64url
+        base64data = base64data.replace('_', '/');
+        base64data = base64data.replace('-', '+');
+        
         return base64data;
     };
     
@@ -128,7 +135,7 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
     };
 
     service.deserializeClaims = function(raw) {
-        var claimsBase64 = padBase64(raw);
+        var claimsBase64 = sanitize(raw);
         var claimsJson = $base64.decode(claimsBase64);
 
         var claims = JSON.parse(claimsJson);
