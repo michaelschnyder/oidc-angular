@@ -5,7 +5,7 @@ This is an angularjs client library to support modern web-applications when usin
 
 See origin on http://blog.emtwo.ch/jwt-token-based-auth-with-angularjs/ for motivation and technical details.
 
-##Getting started
+## Getting started
 To install oidc-angular use bower
 ```
 bower install oidc-angular -save
@@ -26,7 +26,7 @@ var app = angular.module('myApp', ['oidc-angular'], function($auth) {
 );
 ```
 
-##Configuration Options
+## Configuration Options
 
 For a complete and always up-to-date list of configuration options, see https://github.com/michaelschnyder/oidc-angular/blob/master/oidc-angular.js#L220.
 
@@ -43,11 +43,12 @@ For a complete and always up-to-date list of configuration options, see https://
 | `endSessionEndpoint`      | `string` | Place where the ends his session in the IdP. Combined with `basePath` | `[basePath]:connect/endsession`
 | `advanceRefresh`          | `int`    | Defines the advance seconds when trying to silenty reaquire a token. Checks are not made constantly, only after on sucessfull responses  | `300`
 | `enableRequestChecks`     | `boolean`| Specifies if the token should be validated before using it in outgoing requests. Use with caution, because this checks depend on the currect UTC time of both the browser and the server | `false`
+| `stickToLastKnownIdp`     | `boolean` | Defines if the user should pass the last used IdP Name with the authorization request so that a front facing authorization decision server could automatically redirect to the propper IdP. This option might only be usful when using an primary IdP with additional "child"-IdPs. See 'acr_values' on [IdentityServer Docs]( https://identityserver.github.io/Documentation/docsv2/endpoints/authorization.html) | `false` |
 
 ### Configuring the IdP
 When configuring the IdP, make sure the options `clientId`, `redirectUri` and `logoutUri` are exact the same as in the oidc-angular configuration. Otherwise, the IdP typically refuses to redirect back to your application as part of its security restrictions.
 
-##Events
+## Events
 oidc-angular comes with a various list of events which gives you the most possible flexibility to handle the authentication process 
 
 Events are broadcasted to the `$rootScope`.
@@ -65,9 +66,9 @@ Events are broadcasted to the `$rootScope`.
 |`oidcauth:silentRefreshFailed`   | Unable to aquire a new token via background-process | *none*
 |`oidcauth:silentRefreshTimeout`  | The background-refresh process timed out | *none*
 
-##Methods
+## Methods
 
-###SignIn
+### SignIn
 
 Redirects the user to the configured IpP. The URL to the login screen is constructed based on the configuration made.
 
@@ -82,7 +83,7 @@ Or with a redirection after login:
  $auth.signIn('#/page2');
 ```
 
-###SignOut
+### SignOut
 Logout the user imediately and quit the session on the IdP by calling the `endSessionEndpoint`. Claims in local storage get cleared after callback.
 
 **Sample**
@@ -91,7 +92,7 @@ Logout the user imediately and quit the session on the IdP by calling the `endSe
  $auth.signOut();
 ```
 
-###IsAuthenticated
+### IsAuthenticated
 Returns `true` if the there is a valid token available, `false` if no token or an expired / not yet valid token is available.
 
 **Sample**
@@ -100,7 +101,7 @@ Returns `true` if the there is a valid token available, `false` if no token or a
  $auth.isAuthenthicated();
 ```
 
-###IsAuthenticatedIn(milliseconds) 
+### IsAuthenticatedIn(milliseconds) 
 Returns `true` if the current token is still valid after the given amount of milliseconds
 
 **Sample**
@@ -109,8 +110,8 @@ Returns `true` if the current token is still valid after the given amount of mil
  $auth.isAuthenthicatedIn(3600000); // 1hour
 ```
 
-#Sample
+# Sample
 There is a sample in the `samples`-Folder.
 
-#Compatibility
+# Compatibility
 This library has been tested and intensively used with the ThinkTecture IdentityServer3 with various versions. Please see [Thinktecture IdentityServer3](https://github.com/IdentityServer/IdentityServer3) for further details.
