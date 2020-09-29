@@ -221,8 +221,10 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
     }
 }]);
 
-oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
+oidcmodule.provider("$auth", ['$routeProvider', '$windowProvider', '$locationProvider', function ($routeProvider, $windowProvider, $locationProvider) {
 
+    var window = $windowProvider.$get();
+    var prefix = $locationProvider.hashPrefix();
     // Default configuration
     var config = {
         basePath: null,
@@ -230,8 +232,8 @@ oidcmodule.provider("$auth", ['$routeProvider', function ($routeProvider) {
         apiUrl: '/api/',
         responseType: 'id_token',
         scope: "openid profile",
-        redirectUri: (window.location.origin || window.location.protocol + '//' + window.location.host) + window.location.pathname + '#/auth/callback/',
-        logoutUri: (window.location.origin || window.location.protocol + '//' + window.location.host) + window.location.pathname + '#/auth/clear',
+        redirectUri: (window.location.origin || window.location.protocol + '//' + window.location.host) + window.location.pathname + '#' + prefix + '/auth/callback/',
+        logoutUri: (window.location.origin || window.location.protocol + '//' + window.location.host) + window.location.pathname + '#' + prefix + '/auth/clear',
         state: "",
         authorizationEndpoint:  'connect/authorize',
         revocationEndpoint:     'connect/revocation', 
