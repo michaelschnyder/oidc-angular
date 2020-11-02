@@ -12,10 +12,11 @@ var tokenExpiresSoonEvent =      eventPrefix + 'tokenExpires';
 var loggedInEvent =              eventPrefix + 'loggedIn';
 var loggedOutEvent =             eventPrefix + 'loggedOut';
 
-var silentRefreshStartedEvent =  eventPrefix + 'silentRefreshStarted';
-var silentRefreshSuceededEvent = eventPrefix + 'silentRefreshSucceded';
-var silentRefreshFailedEvent =   eventPrefix + 'silentRefreshFailed';
-var silentRefreshTimeoutEvent =  eventPrefix + 'silentRefreshTimeout';
+var silentRefreshStartedEvent =     eventPrefix + 'silentRefreshStarted';
+var silentInitRefreshStartedEvent = eventPrefix + 'silentInitRefreshStarted';
+var silentRefreshSuceededEvent =    eventPrefix + 'silentRefreshSucceded';
+var silentRefreshFailedEvent =      eventPrefix + 'silentRefreshFailed';
+var silentRefreshTimeoutEvent =     eventPrefix + 'silentRefreshTimeout';
 
 // Module registrarion
 var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage', 'ui.router']);
@@ -262,19 +263,37 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                     delete $localStorage['logoutActive'];
                     tokenService.clearTokens();                    
                 }
-                
                 if ($localStorage['refreshRunning']) {
                     delete $localStorage['refreshRunning'];
                 }
-
-                var validateExpirityLoop = function(){
-                    validateExpirity();
-                    $timeout(validateExpirityLoop, config.advanceRefresh);
+                if ($localStorage['validateExpirityLoopRunning']) {
+                    delete $localStorage['validateExpirityLoopRunning'];
                 }
-
                 if(window === window.parent && config.advanceRefresh) {
-                    validateExpirityLoop();
+                    if (tokenService.hasToken()) {
+                        if (!tokenService.hasValidToken()) {
+                            $rootScope.$broadcast(silentInitRefreshStartedEvent);
+                            trySilentRefresh();
+                        } else {
+                            validateExpirityLoop();
+                        }
+                    }
                 }
+            };
+
+            var validateExpirityLoop = function(){
+                if($localStorage['validateExpirityLoopRunning']) {
+                    return;
+                }
+                $localStorage['validateExpirityLoopRunning'] = true;
+                var f = function() {
+                    if(!$localStorage['validateExpirityLoopRunning']) {
+                        return;
+                    }
+                    validateExpirity();
+                    $timeout(f, config.advanceRefresh);
+                };
+                f();
             };
             
             var createLoginUrl = function (nonce, state) {
@@ -340,8 +359,10 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
             var startLogout = function () {
                 var url = createLogoutUrl();
                 $localStorage['logoutActive'] = true;
+                $localStorage['validateExpirityLoopRunning'] = false;
+                $localStorage.$apply();
 
-                window.location.replace(url);
+                $timeout(function(){ window.location.replace(url); }, 100);
             };
 
             var handleImplicitFlowCallback = function(id_token) {
@@ -357,6 +378,9 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                 }
                 else {
                     $location.path('/');
+                }
+                if(tokenService.hasValidToken()) {
+                    validateExpirityLoop();
                 }
                 
                 $rootScope.$broadcast(loggedInEvent);      
@@ -409,6 +433,9 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                             delete $localStorage['refreshRunning']
                         }
 
+                        if (tokenService.hasValidToken()) {
+                            validateExpirityLoop();
+                        }
                         $document.find("#oauthFrame").remove();
                     }, 30000);
                 }, 5000);
@@ -447,6 +474,7 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
             var handleSignOutCallback = function() {
 
                 delete $localStorage['logoutActive'];
+                delete $localStorage['validateExpirityLoopRunning'];
                 
                 tokenService.clearTokens();
                 $location.path('/');
