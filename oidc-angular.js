@@ -153,10 +153,12 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
     };
     
     service.saveToken = function (id_token) {
+        service.clearTokens();
         $localStorage['idToken'] =  id_token;
-        
+
         var idClaims = service.convertToClaims(id_token);
         $localStorage['cached-claims'] =  idClaims;
+        $localStorage.$apply();
     };
 
     service.hasToken = function() {
@@ -201,12 +203,8 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
             var id_token = service.getIdToken();
             
             if (id_token) {
-                var claims = service.convertToClaims(id_token);
-                
-                var idClaims = service.convertToClaims(id_token);
-                $localStorage['cached-claims'] =  idClaims;
-                
-                return claims;
+                cachedClaims = service.convertToClaims(id_token);
+                $localStorage['cached-claims'] = cachedClaims;
             }
         }
         
@@ -214,12 +212,15 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
     };
     
     service.getIdToken = function() {
+        if ($localStorage['refreshRunning']) {
+            $localStorage.$sync();
+        }
         return $localStorage['idToken'];
     };
     
     service.clearTokens = function() {
-        delete $localStorage['cached-claims'];
-        delete $localStorage['idToken'];
+        $localStorage['cached-claims'] = false;
+        $localStorage['idToken'] = false;
     }
 }]);
 
@@ -253,18 +254,28 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
         },
         
         // Service itself
-        $get: ['$q', '$document', '$rootScope', '$localStorage', '$location', 'tokenService', function ($q, $document, $rootScope, $localStorage, $location, tokenService) {
+        $get: ['$timeout', '$q', '$document', '$rootScope', '$localStorage', '$location', 'tokenService', function ($timeout, $q, $document, $rootScope, $localStorage, $location, tokenService) {
         
             var init = function() {
                 
                 if ($localStorage['logoutActive']) {
                     delete $localStorage['logoutActive'];
-                    
                     tokenService.clearTokens();                    
                 }
                 
                 if ($localStorage['refreshRunning']) {
                     delete $localStorage['refreshRunning'];
+                }
+
+                var validateExpirityLoop = function(){
+                    validateExpirity();
+                    $timeout(validateExpirityLoop, config.advanceRefresh*1000);
+                }
+
+                if(window == window.parent && config.advanceRefresh) {
+                    $timeout(function(){
+                        validateExpirityLoop();
+                    }, config.advanceRefresh*1000);
                 }
             };
             
@@ -358,46 +369,50 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                 
                 delete $localStorage['refreshRunning'];
                 
-                var currentIdToken = tokenService.getIdToken();
                 var currentClaims = tokenService.allClaims();
+                var event;
+                var newClaims = tokenService.convertToClaims(newIdToken);
                 
-                var newClaims = tokenService.convertToClaims(newIdToken)
-                
-                if (currentClaims.exp && newClaims.exp && newClaims.exp > currentClaims.exp) {
-                    
+                if (!currentClaims || (currentClaims.exp && newClaims.exp && newClaims.exp > currentClaims.exp)) {
                     tokenService.saveToken(newIdToken);
-        
-                    $rootScope.$broadcast(silentRefreshSuceededEvent);
+                    event = silentRefreshSuceededEvent;
                 }
                 else {
-                    $rootScope.$broadcast(silentRefreshFailedEvent);
+                    event = silentRefreshFailedEvent;
                 }
+                $localStorage['refreshRunning'] = false;
+                $localStorage.$apply();
+                $rootScope.$broadcast(event);
             };
 
             var trySilentRefresh = function() {
                 
                 if ($localStorage['refreshRunning']) {
-                    return;            
+                    return;
                 }
                 
                 $localStorage['refreshRunning'] = true;
-                
-                $rootScope.$broadcast(silentRefreshStartedEvent);
-                
-                var url = createLoginUrl('dummynonce', 'refresh');
-                
-                var html = "<iframe src='" + url + "' height='400' width='100%' id='oauthFrame' style='display:none;visibility:hidden;'></iframe>";
-                var elem = angular.element(html);
-                
-                $document.find("body").append(elem);
-                
-                setTimeout(function() {
-                    if ($localStorage['refreshRunning']) {
-                        $rootScope.$broadcast(silentRefreshTimeoutEvent);
-                        delete $localStorage['refreshRunning']
-                    }
-                    
-                    $document.find("#oauthFrame").remove();
+                $localStorage.$apply();
+
+                $timeout(function(){
+                    $rootScope.$broadcast(silentRefreshStartedEvent);
+
+                    var url = createLoginUrl('dummynonce', 'refresh');
+
+                    var html = "<iframe src='" + url + "' height='400' width='100%' id='oauthFrame' style='display:none;visibility:hidden;'></iframe>";
+                    var elem = angular.element(html);
+
+                    $document.find("body").append(elem);
+
+                    $timeout(function() {
+                        $localStorage.$sync();
+                        if ($localStorage['refreshRunning']) {
+                            $rootScope.$broadcast(silentRefreshTimeoutEvent);
+                            delete $localStorage['refreshRunning']
+                        }
+
+                        $document.find("#oauthFrame").remove();
+                    }, 30000);
                 }, 5000);
             };
 
@@ -459,7 +474,7 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                 
                 var now = Date.now();
             
-                if (!tokenIsValidAt(now + config.advanceRefresh)) {
+                if (!tokenService.hasValidToken() || !tokenIsValidAt(now + config.advanceRefresh)) {
                     $rootScope.$broadcast(tokenExpiresSoonEvent);
                     trySilentRefresh();
                 }

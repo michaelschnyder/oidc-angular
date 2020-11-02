@@ -4,7 +4,7 @@
   "authors": [
     "Michael Schnyder <michael.schnyder@zuehlke.com>",
     "Thomas Mettam <tom@caspertech.co.uk>",
-     "Morten Nilsen <morten@runsafe.no>",
+    "Morten Nilsen <morten@runsafe.no>"
   ],
   "description": "OpenId Connect for AngularJS",
   "main": "oidc-angular.js",
