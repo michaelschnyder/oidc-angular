@@ -272,7 +272,8 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                     $timeout(validateExpirityLoop, config.advanceRefresh*1000);
                 }
 
-                if(window == window.parent && config.advanceRefresh) {
+                if(window === window.parent && config.advanceRefresh) {
+                    validateExpirity();
                     $timeout(function(){
                         validateExpirityLoop();
                     }, config.advanceRefresh*1000);
@@ -469,9 +470,6 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
             }
             
             var validateExpirity = function() {
-                if (!tokenService.hasToken()) return;
-                if (!tokenService.hasValidToken()) return;
-                
                 var now = Date.now();
             
                 if (!tokenService.hasValidToken() || !tokenIsValidAt(now + config.advanceRefresh)) {
