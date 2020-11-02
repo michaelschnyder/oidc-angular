@@ -269,14 +269,11 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
 
                 var validateExpirityLoop = function(){
                     validateExpirity();
-                    $timeout(validateExpirityLoop, config.advanceRefresh*1000);
+                    $timeout(validateExpirityLoop, config.advanceRefresh);
                 }
 
                 if(window === window.parent && config.advanceRefresh) {
-                    validateExpirity();
-                    $timeout(function(){
-                        validateExpirityLoop();
-                    }, config.advanceRefresh*1000);
+                    validateExpirityLoop();
                 }
             };
             
@@ -459,7 +456,11 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
             
             var tokenIsValidAt = function(date) {
                 var claims = tokenService.allClaims();
-                
+
+                if (!claims || !(claims.hasOwnProperty('exp'))) {
+                    return false;
+                }
+
                 var expiresAtMSec = claims.exp * 1000;
                                 
                 if (date <= expiresAtMSec) {
