@@ -18,27 +18,29 @@ var silentRefreshFailedEvent =   eventPrefix + 'silentRefreshFailed';
 var silentRefreshTimeoutEvent =  eventPrefix + 'silentRefreshTimeout';
 
 // Module registrarion
-var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage', 'ngRoute']);
+var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage', 'ui.router']);
 
-oidcmodule.config(['$httpProvider', '$routeProvider', function($httpProvider, $routeProvider) {
+oidcmodule.config(['$httpProvider', '$stateProvider', function($httpProvider, $stateProvider) {
     $httpProvider.interceptors.push('oidcHttpInterceptor');
     
     // Register callback route
-    $routeProvider.
-        when('/auth/callback/:data', {
-            template: '',
-            controller: ['$auth', '$routeParams', function ($auth, $routeParams) {
-                console.debug('oidc-angular: handling login-callback');
-                $auth.handleSignInCallback($routeParams.data);
-            }]
-        }).
-        when('/auth/clear', {
-            template: '',
-            controller: ['$auth', function ($auth) {
-                console.debug('oidc-angular: handling logout-callback');
-                $auth.handleSignOutCallback();
-            }]
-        });        
+    $stateProvider.state({
+        name : 'authcallback',
+        url: '/auth/callback/:data',
+        template: '',
+        controller: ['$auth', '$stateParams', function ($auth, $stateParams) {
+            console.debug('oidc-angular: handling login-callback');
+            $auth.handleSignInCallback($stateParams);
+        }]
+    }).state({
+        name: 'authclear',
+        url: '/auth/clear',
+        template: '',
+        controller: ['$auth', function ($auth) {
+            console.debug('oidc-angular: handling logout-callback');
+            $auth.handleSignOutCallback();
+        }]
+    });
         
     console.debug('oidc-angular: callback routes registered.')
 }]);
@@ -221,7 +223,7 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
     }
 }]);
 
-oidcmodule.provider("$auth", ['$routeProvider', '$windowProvider', '$locationProvider', function ($routeProvider, $windowProvider, $locationProvider) {
+oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationProvider', function ($stateProvider, $windowProvider, $locationProvider) {
 
     var window = $windowProvider.$get();
     var prefix = $locationProvider.hashPrefix();
