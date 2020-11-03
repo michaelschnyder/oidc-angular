@@ -31,7 +31,7 @@ oidcmodule.config(['$httpProvider', '$stateProvider', function($httpProvider, $s
         template: '',
         controller: ['$auth', '$stateParams', function ($auth, $stateParams) {
             console.debug('oidc-angular: handling login-callback');
-            $auth.handleSignInCallback($stateParams);
+            $auth.handleSignInCallback($stateParams.data);
         }]
     }).state({
         name: 'authclear',
