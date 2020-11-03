@@ -14,11 +14,11 @@ var loggedOutEvent =             eventPrefix + 'loggedOut';
 
 var silentRefreshStartedEvent =     eventPrefix + 'silentRefreshStarted';
 var silentInitRefreshStartedEvent = eventPrefix + 'silentInitRefreshStarted';
-var silentRefreshSuceededEvent =    eventPrefix + 'silentRefreshSucceded';
+var silentRefreshSucceededEvent =   eventPrefix + 'silentRefreshSucceeded';
 var silentRefreshFailedEvent =      eventPrefix + 'silentRefreshFailed';
 var silentRefreshTimeoutEvent =     eventPrefix + 'silentRefreshTimeout';
 
-// Module registrarion
+// Module registration
 var oidcmodule = angular.module('oidc-angular', ['base64', 'ngStorage', 'ui.router']);
 
 oidcmodule.config(['$httpProvider', '$stateProvider', function($httpProvider, $stateProvider) {
@@ -119,7 +119,7 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
 
     var sanitize = function (base64data) {
         
-        // Pad lenght to comply with the standard
+        // Pad length to comply with the standard
         while (base64data.length % 4 !== 0) {
             base64data += "=";
         }
@@ -183,7 +183,7 @@ oidcmodule.service('tokenService', ['$base64', '$localStorage', function ($base6
         var expiresAtMSec = claims.exp * 1000;
         var marginMSec = 1000 * 60 * 5; // 5 Minutes
         
-        // Substract margin, because browser time could be a bit in the past
+        // Subtract margin, because browser time could be a bit in the past
         if (issuedAtMSec - marginMSec > now) {
             console.log('oidc-connect: Token is not yet valid!')
             return false
@@ -397,7 +397,7 @@ oidcmodule.provider("$auth", ['$stateProvider', '$windowProvider', '$locationPro
                 
                 if (!currentClaims || (currentClaims.exp && newClaims.exp && newClaims.exp > currentClaims.exp)) {
                     tokenService.saveToken(newIdToken);
-                    event = silentRefreshSuceededEvent;
+                    event = silentRefreshSucceededEvent;
                 }
                 else {
                     event = silentRefreshFailedEvent;
