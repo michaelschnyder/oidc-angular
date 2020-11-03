@@ -575,7 +575,7 @@ function parseQueryString(queryString) {
     }
 
     return data;
- };
+ }
  
      
 if (!String.prototype.endsWith) {
